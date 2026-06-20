@@ -181,6 +181,7 @@
       .header h1 { font-size: 1.6rem; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -190,6 +191,16 @@
   </div>
 
   <div class="course-input-area" id="courseSetup">
+    <h3>📄 Upload Lecture Note</h3>
+
+<input
+type="file"
+id="pdfUpload"
+accept=".pdf">
+
+<p id="pdfStatus">
+No PDF selected
+</p>
     <label for="courseTitle">📚 Enter Course Title (e.g., MTH101, POL202, Anatomy of Ronaldo's Freekicks)</label>
     <input type="text" id="courseTitle" placeholder="Type course name..." />
     <button class="btn" id="startChatBtn">Start Learning ✍️🔥</button>
@@ -234,10 +245,31 @@ Teaching method:
 You only respond as the tutor, no other roles.`;
 
   let conversation = [{ role: "system", content: SYSTEM_PROMPT }];
+  let extractedText = "";
+
+document.addEventListener(
+"DOMContentLoaded",
+function(){
+
+const upload =
+document.getElementById(
+"pdfUpload"
+);
+
+upload.addEventListener(
+"change",
+readPDF
+);
+
+});
   let courseTitle = "";
   let chatStarted = false;
 
-  const chatBox = document.getElementById("chatBox");
+  const chatBox = let topic =
+extractedText ||
+document.getElementById(
+'topic'
+).value;
   const typingIndicator = document.getElementById("typingIndicator");
   const courseSetup = document.getElementById("courseSetup");
   const chatInputArea = document.getElementById("chatInputArea");
@@ -245,6 +277,73 @@ You only respond as the tutor, no other roles.`;
   const sendBtn = document.getElementById("sendBtn");
   const userMessageInput = document.getElementById("userMessage");
 
+  async function readPDF(event){
+
+const file =
+event.target.files[0];
+
+if(!file) return;
+
+document.getElementById(
+"pdfStatus"
+).innerHTML =
+"📄 Reading PDF...";
+
+const reader =
+new FileReader();
+
+reader.onload =
+async function(){
+
+const typedArray =
+new Uint8Array(
+reader.result
+);
+
+const pdf =
+await pdfjsLib.getDocument(
+typedArray
+).promise;
+
+let text = "";
+
+for(
+let pageNum=1;
+pageNum<=pdf.numPages;
+pageNum++
+){
+
+const page =
+await pdf.getPage(pageNum);
+
+const content =
+await page.getTextContent();
+
+text += content.items
+.map(item=>item.str)
+.join(" ");
+
+text += "\n\n";
+
+}
+
+extractedText = text;
+
+document.getElementById(
+"pdfStatus"
+).innerHTML =
+"✅ PDF Loaded Successfully";
+
+document.getElementById(
+"topic"
+).value =
+text.substring(0,5000);
+
+};
+
+reader.readAsArrayBuffer(file);
+
+  }
   function appendMessage(role, text) {
     const msgDiv = document.createElement("div");
     msgDiv.className = `message ${role}`;
