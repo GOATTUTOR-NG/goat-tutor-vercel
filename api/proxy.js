@@ -2,7 +2,7 @@
 export default async function handler(req, res) {
   // Allow your own Vercel app origin (and localhost for testing)
   const allowedOrigins = [
-    "https://YOUR-VERCEL-APP-NAME.vercel.app",  // 👈 CHANGE THIS to your actual Vercel URL
+    "https://goat-tutor-vercel-gehv6xnz6-goattutor-ngs-projects.vercel.app",
     "http://localhost:3000"
   ];
   const origin = req.headers.origin || "";
